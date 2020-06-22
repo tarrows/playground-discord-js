@@ -10,7 +10,22 @@ const generateOutputFile = (channel: Discord.Channel, member: Discord.GuildMembe
   return fs.createWriteStream(fileName);
 }
 
-client.on('message', msg => {})
+client.on('message', msg => {
+  if (msg.content.startsWith(config.prefix + 'join')) {
+    let [command, ...channelNames] = msg.content.split(" ");
+    if (!msg.guild) {
+      return msg.reply('error: guild not found')
+    }
+    const voiceChannel: Discord.VoiceChannel = (msg.guild.channels.guild as any)?.find('name', channelNames.join(' '))
+    console.log(voiceChannel.id)
+    if (!voiceChannel || voiceChannel.type !== 'voice') {
+      return msg.reply(`I could not find the channel ${channelNames}`)
+    }
+    voiceChannel.join().then(conn => {
+      msg.reply('ready!')
+    })
+  }
+})
 
 client.login(config.token)
 
